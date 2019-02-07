@@ -83,7 +83,7 @@ public class Cytomine {
 
 	/**
 	 * Init a Cytomine object
-	 * 
+	 *
 	 * @param host
 	 *          Full url of the Cytomine instance (e.g. 'http://...')
 	 * @param publicKey
@@ -101,7 +101,7 @@ public class Cytomine {
 
 	/**
 	 * Legacy constructor (kept for downward compatibility).
-	 * 
+	 *
 	 * @param host
 	 *          Full url of the Cytomine instance (e.g. 'http://...')
 	 * @param publicKey
@@ -142,7 +142,7 @@ public class Cytomine {
 
 	/**
 	 * Get the public key of this connection.
-	 * 
+	 *
 	 * @author Philipp Kainz
 	 * @since
 	 * @return
@@ -153,7 +153,7 @@ public class Cytomine {
 
 	/**
 	 * Get the private key of this connection.
-	 * 
+	 *
 	 * @author Philipp Kainz
 	 * @since
 	 * @return
@@ -166,7 +166,7 @@ public class Cytomine {
 	 * Test the connection to the Cytomine host instance.
 	 * This test can be run by external applications to check for the
 	 * availability of the Cytomine-Core.
-	 * 
+	 *
 	 * @return true, if HTTP response code (200, 201, 304), i.e. the host is
 	 *         available
 	 * @throws Exception
@@ -1345,12 +1345,28 @@ public class Cytomine {
 		return saveModel(imageSequence);
 	}
 
-	public Description getDescription(Long domainIdent, String domainClassName) throws CytomineException {
-		Description description = new Description();
-		description.set("domainIdent", domainIdent);
-		description.set("domainClassName", domainClassName);
-		return fetchModel(description);
-	}
+
+    public ImageGroupHDF5 getImageGroupHDF5(Long id) throws CytomineException {
+        ImageGroupHDF5 groupHDF5 = new ImageGroupHDF5();
+        groupHDF5.set("id", id);
+        return fetchModel(groupHDF5);
+    }
+
+
+    public ImageGroupHDF5 editImageGroupHDF5(Long id, Integer status, Integer progress) throws CytomineException {
+        ImageGroupHDF5 groupHDF5 = getImageGroupHDF5(id);
+        groupHDF5.set("status", status);
+        groupHDF5.set("progress", progress);
+        return updateModel(groupHDF5);
+    }
+
+
+    public Description getDescription(Long domainIdent, String domainClassName) throws CytomineException {
+        Description description = new Description();
+        description.set("domainIdent", domainIdent);
+        description.set("domainClassName", domainClassName);
+        return fetchModel(description);
+    }
 
 	public Description addDescription(Long domainIdent, String domainClassName, String text) throws CytomineException {
 		Description description = new Description();
@@ -1463,9 +1479,24 @@ public class Cytomine {
 		if (status != -1l) {
 			uploadedFile.set("status", status);
 		}
-
 		return saveModel(uploadedFile);
 	}
+
+    public UploadedFileCollection getUploadedFiles(boolean deleted) throws CytomineException {
+        UploadedFileCollection files = new UploadedFileCollection(offset, max);
+        files.addParams("deleted", "true");
+        return fetchCollection(files);
+    }
+
+    public void deleteUploadedFile(Long idUploadedFile) throws CytomineException {
+        UploadedFile uploadedFile = new UploadedFile();
+        uploadedFile.set("id", idUploadedFile);
+        deleteModel(uploadedFile);
+    }
+
+    public String clearAbstractImageProperties(Long idImage) throws CytomineException {
+        return doPost("/api/abstractimage/" + idImage + "/properties/clear.json", "");
+    }
 
 	public UploadedFile editUploadedFile(Long id, int status, boolean converted, Long idParent) throws CytomineException {
 		UploadedFile uploadedFile = getUploadedFile(id);
